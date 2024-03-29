@@ -1,6 +1,10 @@
+use core::panic;
+
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, PartialEq)]
+use crate::Error;
+
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub enum Instructions {
     Difficulty(DifficultyLevel),
     SaveAll,
@@ -8,6 +12,7 @@ pub enum Instructions {
     Say(String),
     Whisper(String, String),
     Seed,
+    DoNothing(String),
 }
 
 impl Instructions {
@@ -15,7 +20,7 @@ impl Instructions {
         let mut string = match self {
             Self::Difficulty(level) => {
                 let mut buf = String::from("/difficulty ");
-                buf.push_str(level.as_str());
+                buf.push_str(level.into());
                 buf
             }
             Self::SaveAll => String::from("/save-all"),
@@ -27,7 +32,25 @@ impl Instructions {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq)]
+impl TryFrom<&Vec<&str>> for Instructions {
+    type Error = Error;
+    fn try_from(value: &Vec<&str>) -> Result<Self, Self::Error> {
+        if value.len() == 0 {
+            panic!("Trying to convert a empty Vec<&str> to a enum Instruction");
+        }
+        match value[0] {
+            "difficulty" => Ok(Self::Difficulty(DifficultyLevel::Normal)), // TODO
+            "save-all" => Ok(Self::SaveAll),
+            "stop" => Ok(Self::Stop),
+            "say" => Ok(Self::Say("Hello".to_string())), // TODO
+            "w" => Ok(Self::Whisper("player".to_string(), "hello".to_string())), // TODO
+            "seed" => Ok(Self::Seed),
+            command => Err(Error::ParseInstructionError(command.to_string())),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub enum DifficultyLevel {
     Peaceful,
     Easy,
@@ -35,13 +58,13 @@ pub enum DifficultyLevel {
     Hard,
 }
 
-impl DifficultyLevel {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::Peaceful => "peaceful",
-            Self::Easy => "easy",
-            Self::Normal => "normal",
-            Self::Hard => "hard",
+impl From<&DifficultyLevel> for &str {
+    fn from(value: &DifficultyLevel) -> Self {
+        match value {
+            DifficultyLevel::Peaceful => "peaceful",
+            DifficultyLevel::Easy => "easy",
+            DifficultyLevel::Normal => "normal",
+            DifficultyLevel::Hard => "hard",
         }
     }
 }
