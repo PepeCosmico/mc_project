@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::Error;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub enum Instructions {
+pub enum Instruction {
     Difficulty(DifficultyLevel),
     SaveAll,
     Stop,
@@ -15,7 +15,7 @@ pub enum Instructions {
     DoNothing(String),
 }
 
-impl Instructions {
+impl Instruction {
     pub fn as_command(&self) -> Vec<u8> {
         let mut string = match self {
             Self::Difficulty(level) => {
@@ -32,7 +32,7 @@ impl Instructions {
     }
 }
 
-impl TryFrom<&Vec<&str>> for Instructions {
+impl TryFrom<&Vec<&str>> for Instruction {
     type Error = Error;
     fn try_from(value: &Vec<&str>) -> Result<Self, Self::Error> {
         if value.len() == 0 {

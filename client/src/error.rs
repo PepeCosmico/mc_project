@@ -1,3 +1,5 @@
+use std::io;
+
 use thiserror::Error as ThisError;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -6,4 +8,8 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     #[error("Error parsing a instruction")]
     ParseInstructionError(#[from] common::Error),
+    #[error("IO Error")]
+    IOError(#[from] io::Error),
+    #[error("Serializing Error")]
+    SerializeError(#[from] bincode::Error),
 }

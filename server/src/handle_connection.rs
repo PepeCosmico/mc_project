@@ -5,7 +5,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use common::{instructions::Instructions, message::Message};
+use common::{instructions::Instruction, message::Message};
 
 use crate::{
     error::{Error, Result},
@@ -30,7 +30,7 @@ pub async fn handle_connection(
                 let received: Message = bincode::deserialize(&buffer).unwrap();
                 let mut locked_child_stdin = child_stdin.lock().unwrap();
                 process_instructions(&received, &mut locked_child_stdin);
-                if received.instruc == Instructions::Stop {
+                if received.instruc == Instruction::Stop {
                     break;
                 }
                 buffer.clear();
