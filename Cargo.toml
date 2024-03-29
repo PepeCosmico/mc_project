@@ -1,0 +1,21 @@
+[package]
+name = "mc_project"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+members = ["server", "common", "client"]
+
+[lib]
+name = "common"
+path = "./common/"
+
+[[bin]]
+name = "client"
+path = "./client/"
+
+[[bin]]
+name = "server"
+path = "./server/"
+
+
