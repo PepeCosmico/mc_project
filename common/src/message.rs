@@ -1,9 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::instructions::Instructions;
+use crate::instructions::Instruction;
 
 #[derive(Serialize, Deserialize)]
 pub struct Message {
-    pub msg: String,
-    pub instruc: Instructions,
+    pub instruc: Instruction,
 }

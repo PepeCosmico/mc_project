@@ -1,18 +1,57 @@
-use std::{io::Write, net::TcpStream};
+use error::Result;
+use tokio::net::TcpStream;
 
-use common::{instructions::Instructions, message::Message};
+use std::io::{self, Write};
+
+use common::{instructions::Instruction, message::Message};
+
+mod error;
 
 const LISTENER_PORT: &str = "127.0.0.1:25560";
 
-fn main() {
-    let mut stream = TcpStream::connect(LISTENER_PORT).unwrap();
-    let msg = Message {
-        msg: String::from("Save command"),
-        instruc: Instructions::SaveAll,
-    };
+#[tokio::main]
+async fn main() -> Result<()> {
+    let mut stream = TcpStream::connect(LISTENER_PORT).await.unwrap();
 
-    let encoded = bincode::serialize(&msg).unwrap();
+    let mut buffer = String::new();
+    loop {
+        print!(" > ");
+        io::stdout().flush().unwrap();
 
-    let _ = stream.write_all(&encoded);
-    let _ = stream.shutdown(std::net::Shutdown::Both);
+        io::stdin()
+            .read_line(&mut buffer)
+            .expect("Failed to read line");
+
+        buffer = buffer.trim().to_string();
+        match process_input(&buffer) {
+            Ok(intruc) => {
+                send_message(&mut stream, intruc).await?;
+            }
+            Err(e) => {
+                println!("{:?}", e);
+            }
+        };
+
+        if "exit".to_string() == buffer {
+            break;
+        }
+        buffer.clear();
+    }
+
+    Ok(())
+}
+
+fn process_input(input: &String) -> Result<Instruction> {
+    let input_vec: Vec<&str> = input.split(" ").collect();
+    let instruction = Instruction::try_from(&input_vec)?;
+    Ok(instruction)
+}
+
+async fn send_message(stream: &mut TcpStream, instruction: Instruction) -> Result<()> {
+    let instruc = instruction;
+    let msg = Message { instruc };
+    let msg_encoded = bincode::serialize(&msg)?;
+    stream.writable().await?;
+    stream.try_write(&msg_encoded)?;
+    Ok(())
 }
