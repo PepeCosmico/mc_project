@@ -14,22 +14,11 @@ pub enum Instruction {
 }
 
 impl Instruction {
-    pub fn as_command(&self) -> Vec<u8> {
-        let mut string = match self {
-            Self::Difficulty(level) => {
-                let level_str: &str = level.into();
-                String::from(format!("/difficulty {}", level_str))
-            }
-            Self::SaveAll => String::from("/save-all"),
-            Self::Start => String::from("/start"),
-            Self::Stop => String::from("/stop"),
-            Self::Say(msg) => String::from(format!("/msg {}", msg)),
-            Self::Whisper(player, msg) => String::from(format!("/w {} {}", player, msg)),
-            Self::Seed => String::from("/seed"),
-        };
-
-        string.push_str("\n");
-        string.as_bytes().to_vec()
+    pub fn ser(&self) -> Vec<u8> {
+        bincode::serialize(&self).unwrap()
+    }
+    pub fn deser(value: &Vec<u8>) -> Self {
+        bincode::deserialize(&value).unwrap()
     }
 }
 

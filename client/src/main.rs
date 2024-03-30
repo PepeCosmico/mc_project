@@ -3,7 +3,7 @@ use tokio::net::TcpStream;
 
 use std::io::{self, Write};
 
-use common::{instructions::Instruction, message::Message};
+use common::instructions::Instruction;
 
 mod error;
 
@@ -48,9 +48,7 @@ fn process_input(input: &String) -> Result<Instruction> {
 }
 
 async fn send_message(stream: &mut TcpStream, instruction: Instruction) -> Result<()> {
-    let instruc = instruction;
-    let msg = Message { instruc };
-    let msg_encoded = bincode::serialize(&msg)?;
+    let msg_encoded = instruction.ser();
     stream.writable().await?;
     stream.try_write(&msg_encoded)?;
     Ok(())
