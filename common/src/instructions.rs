@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::Error;
+use crate::{
+    message::{Message, MessageType},
+    Error,
+};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub enum Instruction {
@@ -13,12 +16,21 @@ pub enum Instruction {
     Seed,
 }
 
-impl Instruction {
-    pub fn ser(&self) -> Vec<u8> {
+impl Message for Instruction {
+    fn ser(&self) -> Vec<u8> {
         bincode::serialize(&self).unwrap()
     }
-    pub fn deser(value: &Vec<u8>) -> Self {
-        bincode::deserialize(&value).unwrap()
+    fn deser(val: &Vec<u8>) -> Self {
+        bincode::deserialize(&val).unwrap()
+    }
+    fn get_type(&self) -> MessageType {
+        match self {
+            Self::Start => MessageType::ServerCommand,
+            _ => MessageType::MinecraftCommand,
+        }
+    }
+    fn get_instruction(&self) -> &Instruction {
+        self
     }
 }
 

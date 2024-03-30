@@ -5,7 +5,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use common::instructions::Instruction;
+use common::{instructions::Instruction, message::Message};
 
 use crate::{
     error::{Error, Result},
@@ -18,6 +18,7 @@ pub async fn handle_connection(
 ) -> Result<()> {
     // Create a buffer to store the incoming data.
     let mut buffer = vec![0; 1024]; // Adjust the buffer size as needed.
+    let exit = false;
 
     loop {
         // Read data into the buffer.
@@ -27,10 +28,10 @@ pub async fn handle_connection(
         match stream.try_read(&mut buffer) {
             Ok(0) => continue,
             Ok(_n) => {
-                let received: Instruction = Instruction::deser(&buffer);
+                let received: Instruction = Message::deser(&buffer);
                 let mut locked_child_stdin = child_stdin.lock().unwrap();
-                process_instructions(&received, &mut locked_child_stdin);
-                if received == Instruction::Stop {
+                let exit = process_instructions(received, &mut locked_child_stdin)?;
+                if exit {
                     break;
                 }
                 buffer.clear();
