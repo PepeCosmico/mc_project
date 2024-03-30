@@ -8,7 +8,6 @@ use std::{
 use error::Result;
 use handle_connection::handle_connection;
 
-mod command;
 mod error;
 mod handle_connection;
 mod process;

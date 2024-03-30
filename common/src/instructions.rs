@@ -1,36 +1,33 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    message::{Message, MessageType},
-    Error,
-};
+use crate::Error;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub enum Instruction {
     Difficulty(DifficultyLevel),
     SaveAll,
-    Start,
     Stop,
     Say(String),
     Whisper(String, String),
     Seed,
 }
 
-impl Message for Instruction {
-    fn ser(&self) -> Vec<u8> {
-        bincode::serialize(&self).unwrap()
-    }
-    fn deser(val: &Vec<u8>) -> Self {
-        bincode::deserialize(&val).unwrap()
-    }
-    fn get_type(&self) -> MessageType {
-        match self {
-            Self::Start => MessageType::ServerCommand,
-            _ => MessageType::MinecraftCommand,
-        }
-    }
-    fn get_instruction(&self) -> &Instruction {
-        self
+impl Instruction {
+    pub fn as_command(&self) -> Vec<u8> {
+        let mut string = match self {
+            Self::Difficulty(level) => {
+                let level_str: &str = level.into();
+                String::from(format!("/difficulty {}", level_str))
+            }
+            Self::SaveAll => String::from("/save-all"),
+            Self::Stop => String::from("/stop"),
+            Self::Say(msg) => String::from(format!("/msg {}", msg)),
+            Self::Whisper(player, msg) => String::from(format!("/w {} {}", player, msg)),
+            Self::Seed => String::from("/seed"),
+        };
+
+        string.push_str("\n");
+        string.as_bytes().to_vec()
     }
 }
 
@@ -43,7 +40,6 @@ impl TryFrom<&Vec<&str>> for Instruction {
         match value[0] {
             "difficulty" => Ok(Self::Difficulty(DifficultyLevel::Normal)), // TODO
             "save-all" => Ok(Self::SaveAll),
-            "start" => Ok(Self::Start),
             "stop" => Ok(Self::Stop),
             "say" => Ok(Self::Say("Hello".to_string())), // TODO
             "w" => Ok(Self::Whisper("player".to_string(), "hello".to_string())), // TODO

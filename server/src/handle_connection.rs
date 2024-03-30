@@ -18,7 +18,6 @@ pub async fn handle_connection(
 ) -> Result<()> {
     // Create a buffer to store the incoming data.
     let mut buffer = vec![0; 1024]; // Adjust the buffer size as needed.
-    let exit = false;
 
     loop {
         // Read data into the buffer.
@@ -28,10 +27,10 @@ pub async fn handle_connection(
         match stream.try_read(&mut buffer) {
             Ok(0) => continue,
             Ok(_n) => {
-                let received: Instruction = Message::deser(&buffer);
+                let received: Message = bincode::deserialize(&buffer).unwrap();
                 let mut locked_child_stdin = child_stdin.lock().unwrap();
-                let exit = process_instructions(received, &mut locked_child_stdin)?;
-                if exit {
+                process_instructions(&received, &mut locked_child_stdin);
+                if received.instruc == Instruction::Stop {
                     break;
                 }
                 buffer.clear();

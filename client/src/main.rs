@@ -47,8 +47,10 @@ fn process_input(input: &String) -> Result<Instruction> {
     Ok(instruction)
 }
 
-async fn send_message(stream: &mut TcpStream, instruction: impl Message) -> Result<()> {
-    let msg_encoded = instruction.ser();
+async fn send_message(stream: &mut TcpStream, instruction: Instruction) -> Result<()> {
+    let instruc = instruction;
+    let msg = Message { instruc };
+    let msg_encoded = bincode::serialize(&msg)?;
     stream.writable().await?;
     stream.try_write(&msg_encoded)?;
     Ok(())
