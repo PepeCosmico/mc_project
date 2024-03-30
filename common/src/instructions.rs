@@ -1,5 +1,3 @@
-use core::panic;
-
 use serde::{Deserialize, Serialize};
 
 use crate::Error;
@@ -8,6 +6,7 @@ use crate::Error;
 pub enum Instruction {
     Difficulty(DifficultyLevel),
     SaveAll,
+    Start,
     Stop,
     Say(String),
     Whisper(String, String),
@@ -22,6 +21,7 @@ impl Instruction {
                 String::from(format!("/difficulty {}", level_str))
             }
             Self::SaveAll => String::from("/save-all"),
+            Self::Start => String::from("/start"),
             Self::Stop => String::from("/stop"),
             Self::Say(msg) => String::from(format!("/msg {}", msg)),
             Self::Whisper(player, msg) => String::from(format!("/w {} {}", player, msg)),
@@ -42,6 +42,7 @@ impl TryFrom<&Vec<&str>> for Instruction {
         match value[0] {
             "difficulty" => Ok(Self::Difficulty(DifficultyLevel::Normal)), // TODO
             "save-all" => Ok(Self::SaveAll),
+            "start" => Ok(Self::Start),
             "stop" => Ok(Self::Stop),
             "say" => Ok(Self::Say("Hello".to_string())), // TODO
             "w" => Ok(Self::Whisper("player".to_string(), "hello".to_string())), // TODO
