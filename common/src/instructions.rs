@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::Error;
+use crate::{message::Message, Error};
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Message)]
 pub enum Instruction {
     Difficulty(DifficultyLevel),
     SaveAll,
