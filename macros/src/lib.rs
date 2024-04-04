@@ -17,7 +17,7 @@ fn impl_message(ast: &syn::DeriveInput) -> TokenStream {
             fn ser(&self) -> Vec<u8> {
                 bincode::serialize(&self).unwrap()
             }
-            fn deser(encoded: Vec<u8>) -> Self {
+            fn deser(encoded: &Vec<u8>) -> Self {
                 bincode::deserialize(&encoded).unwrap()
             }
         }

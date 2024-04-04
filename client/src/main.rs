@@ -1,4 +1,4 @@
-use error::{Error, Result};
+use error::Result;
 use tokio::net::TcpStream;
 
 use std::io::{self, Write};
@@ -43,22 +43,13 @@ async fn main() -> Result<()> {
 
 fn process_input(input: &String) -> Result<impl Message> {
     let input_vec: Vec<&str> = input.split(" ").collect();
-    if input_vec.len() < 2 {
-        return Err(Error::InvalidInputError);
-    }
-    let msg = match input_vec[0] {
-        "server" => todo!(),
-        "mcommand" => {
-            let msg_vec = input_vec.split_at(1).1.to_vec();
-            Instruction::try_from(&msg_vec)?
-        }
-        &_ => return Err(Error::InvalidInputError),
-    };
-    Ok(msg)
+    let instruction = Instruction::try_from(&input_vec)?;
+    println!("{:?}", instruction);
+    Ok(instruction)
 }
 
 async fn send_message(stream: &mut TcpStream, msg: &impl Message) -> Result<()> {
-    let msg_encoded = bincode::serialize(msg)?;
+    let msg_encoded = msg.ser();
     stream.writable().await?;
     stream.try_write(&msg_encoded)?;
     Ok(())
