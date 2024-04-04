@@ -31,9 +31,7 @@ impl Command for Instruction {
             Self::Say(msg) => String::from(format!("/say {}", msg)),
             Self::Seed => String::from("/seed"),
         };
-
         string.push_str("\n");
-        println!("{string}");
         Ok(string.as_bytes().to_vec())
     }
 }
