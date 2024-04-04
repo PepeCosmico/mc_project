@@ -1,17 +1,26 @@
-use error::Result;
 use tokio::net::TcpStream;
 
 use std::io::{self, Write};
 
 use common::{instructions::Instruction, message::Message};
 
+use crate::{error::Result, utils::print_welcome_msg};
+
 mod error;
+mod utils;
 
 const LISTENER_PORT: &str = "127.0.0.1:25560";
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let mut stream = TcpStream::connect(LISTENER_PORT).await.unwrap();
+    print_welcome_msg();
+    let mut stream = match TcpStream::connect(LISTENER_PORT).await {
+        Ok(stream) => stream,
+        Err(e) => {
+            println!("Could not connect to server");
+            return Err(error::Error::IOError(e));
+        }
+    };
 
     let mut buffer = String::new();
     loop {
