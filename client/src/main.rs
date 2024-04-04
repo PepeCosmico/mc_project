@@ -1,21 +1,24 @@
-use error::Result;
 use tokio::net::TcpStream;
+use utils::connect_to_server;
 
 use std::io::{self, Write};
 
 use common::{instructions::Instruction, message::Message};
 
-mod error;
+use crate::{error::Result, utils::print_welcome_msg};
 
-const LISTENER_PORT: &str = "127.0.0.1:25560";
+mod error;
+mod utils;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let mut stream = TcpStream::connect(LISTENER_PORT).await.unwrap();
+    print_welcome_msg();
+
+    let mut stream = connect_to_server().await?;
 
     let mut buffer = String::new();
     loop {
-        print!(" > ");
+        print!("-$ ");
         io::stdout().flush().unwrap();
 
         io::stdin()

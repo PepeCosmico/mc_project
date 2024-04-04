@@ -1,6 +1,6 @@
-use std::io;
-
 use thiserror::Error as ThisError;
+
+use std::io;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
