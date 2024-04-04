@@ -9,4 +9,6 @@ pub enum Error {
     IOError(#[from] io::Error),
     #[error("Command creation error")]
     CommandCreationError,
+    #[error("Read message error")]
+    ReadMessageError(#[from] common::Error),
 }

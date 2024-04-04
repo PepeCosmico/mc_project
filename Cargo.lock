@@ -90,6 +90,7 @@ dependencies = [
  "macros",
  "serde",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]

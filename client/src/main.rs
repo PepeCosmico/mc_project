@@ -1,9 +1,11 @@
-use tokio::net::TcpStream;
 use utils::connect_to_server;
 
 use std::io::{self, Write};
 
-use common::{instructions::Instruction, message::Message};
+use common::{
+    instructions::Instruction,
+    message::{send_message, Message},
+};
 
 use crate::{error::Result, utils::print_welcome_msg};
 
@@ -49,11 +51,4 @@ fn process_input(input: &String) -> Result<impl Message> {
     let instruction = Instruction::try_from(&input_vec)?;
     println!("{:?}", instruction);
     Ok(instruction)
-}
-
-async fn send_message(stream: &mut TcpStream, msg: &impl Message) -> Result<()> {
-    let msg_encoded = msg.ser();
-    stream.writable().await?;
-    stream.try_write(&msg_encoded)?;
-    Ok(())
 }
