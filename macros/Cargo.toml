@@ -1,13 +1,14 @@
 [package]
-name = "common"
+name = "macros"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
+[lib]
+proc-macro = true
 
-thiserror = "1"
+[dependencies]
+syn = "2.0"
+quote = "1.0"
 bincode = "1.3.3"
-serde = { version = "1", features = [ "derive" ]}
-macros = { path = "../macros" }

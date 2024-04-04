@@ -23,7 +23,7 @@ async fn main() -> Result<()> {
         .stdin(Stdio::piped())
         .current_dir("../serverdata/")
         .spawn()?;
-    let child_stdin = Arc::new(Mutex::new(child.stdin.take().unwrap()));
+    let child_stdin = Arc::new(Mutex::new(Some(child.stdin.take().unwrap())));
 
     let tcp_listener = TcpListener::bind(LISTENER_PORT).await?;
     loop {

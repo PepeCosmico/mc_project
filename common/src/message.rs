@@ -1,8 +1,9 @@
+pub use macros::Message;
 use serde::{Deserialize, Serialize};
 
-use crate::instructions::Instruction;
-
-#[derive(Serialize, Deserialize)]
-pub struct Message {
-    pub instruc: Instruction,
+pub trait Message: Serialize + for<'de> Deserialize<'de> {
+    fn ser(&self) -> Vec<u8>;
+    fn deser(encoded: &Vec<u8>) -> Self
+    where
+        Self: Sized;
 }

@@ -1,4 +1,4 @@
-use tokio::net::TcpStream;
+use tokio::{io::AsyncReadExt, net::TcpStream};
 
 use std::{
     process::ChildStdin,
@@ -13,8 +13,8 @@ use crate::{
 };
 
 pub async fn handle_connection(
-    stream: TcpStream,
-    child_stdin: Arc<Mutex<ChildStdin>>,
+    mut stream: TcpStream,
+    child_stdin: Arc<Mutex<Option<ChildStdin>>>,
 ) -> Result<()> {
     // Create a buffer to store the incoming data.
     let mut buffer = vec![0; 1024]; // Adjust the buffer size as needed.
@@ -22,21 +22,19 @@ pub async fn handle_connection(
     loop {
         // Read data into the buffer.
 
-        stream.readable().await?;
-
-        match stream.try_read(&mut buffer) {
+        match stream.read(&mut buffer).await {
             Ok(0) => continue,
             Ok(_n) => {
-                let received: Message = bincode::deserialize(&buffer).unwrap();
+                let received: Instruction = Message::deser(&buffer);
                 let mut locked_child_stdin = child_stdin.lock().unwrap();
-                process_instructions(&received, &mut locked_child_stdin);
-                if received.instruc == Instruction::Stop {
+                process_instructions(&received, &mut locked_child_stdin)?;
+                if received == Instruction::Stop {
                     break;
                 }
-                buffer.clear();
             }
             Err(e) => return Err(Error::IOError(e)),
         };
+        buffer = vec![0; 1024];
     }
 
     Ok(())

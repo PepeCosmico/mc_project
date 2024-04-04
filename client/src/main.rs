@@ -25,7 +25,7 @@ async fn main() -> Result<()> {
         buffer = buffer.trim().to_string();
         match process_input(&buffer) {
             Ok(intruc) => {
-                send_message(&mut stream, intruc).await?;
+                send_message(&mut stream, &intruc).await?;
             }
             Err(e) => {
                 println!("{:?}", e);
@@ -41,16 +41,15 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-fn process_input(input: &String) -> Result<Instruction> {
+fn process_input(input: &String) -> Result<impl Message> {
     let input_vec: Vec<&str> = input.split(" ").collect();
     let instruction = Instruction::try_from(&input_vec)?;
+    println!("{:?}", instruction);
     Ok(instruction)
 }
 
-async fn send_message(stream: &mut TcpStream, instruction: Instruction) -> Result<()> {
-    let instruc = instruction;
-    let msg = Message { instruc };
-    let msg_encoded = bincode::serialize(&msg)?;
+async fn send_message(stream: &mut TcpStream, msg: &impl Message) -> Result<()> {
+    let msg_encoded = msg.ser();
     stream.writable().await?;
     stream.try_write(&msg_encoded)?;
     Ok(())

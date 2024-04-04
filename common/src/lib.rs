@@ -6,5 +6,5 @@ pub mod message;
 #[derive(Debug, ThisError)]
 pub enum Error {
     #[error("Error parsing instructio")]
-    ParseInstructionError(String),
+    ParseInstructionError,
 }

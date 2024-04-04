@@ -7,4 +7,6 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     #[error("Could not spawn the child process for the mc server")]
     IOError(#[from] io::Error),
+    #[error("Command creation error")]
+    CommandCreationError,
 }
