@@ -1,13 +1,11 @@
-use utils::connect_to_server;
-
 use std::io::{self, Write};
 
-use common::{
-    instructions::Instruction,
-    message::{send_message, Message},
-};
+use common::{instructions::Instruction, message::Message};
 
-use crate::{error::Result, utils::print_welcome_msg};
+use crate::{
+    error::Result,
+    utils::{connect_to_server, print_welcome_msg, send_msg_wait_response},
+};
 
 mod error;
 mod utils;
@@ -28,18 +26,20 @@ async fn main() -> Result<()> {
             .expect("Failed to read line");
 
         buffer = buffer.trim().to_string();
+        if "exit".to_string() == buffer {
+            break;
+        }
         match process_input(&buffer) {
-            Ok(intruc) => {
-                send_message(&mut stream, &intruc).await?;
+            Ok(instruc) => {
+                let response = send_msg_wait_response(&mut stream, &instruc).await?;
+                if response.is_ok() {
+                    println!("Message send successfully");
+                }
             }
             Err(e) => {
                 println!("{:?}", e);
             }
         };
-
-        if "exit".to_string() == buffer {
-            break;
-        }
         buffer.clear();
     }
 

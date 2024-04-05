@@ -5,11 +5,12 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use common::{instructions::Instruction, message::read_message};
+use common::{instructions::Instruction, message::read_message, response::Response};
 
 use crate::{
     error::{Error, Result},
     process::process_instructions,
+    utils::send_response,
 };
 
 pub async fn handle_connection(
@@ -21,7 +22,15 @@ pub async fn handle_connection(
             Ok(instruc) => instruc,
             Err(e) => return Err(Error::ReadMessageError(e)),
         };
-        let mut locked_child_stdin = child_stdin.lock().unwrap();
-        process_instructions(&instruction, &mut locked_child_stdin)?;
+        let res: Result<()>;
+        {
+            let mut locked_child_stdin = child_stdin.lock().unwrap();
+            res = process_instructions(&instruction, &mut locked_child_stdin);
+        }
+        let response = match res {
+            Ok(_) => Response::new(true),
+            Err(_) => Response::new(false),
+        };
+        send_response(&mut stream, &response).await?;
     }
 }

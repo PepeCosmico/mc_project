@@ -12,4 +12,6 @@ pub enum Error {
     IOError(#[from] io::Error),
     #[error("Serializing Error")]
     SerializeError(#[from] bincode::Error),
+    #[error("Read response timeout ended")]
+    ReadResponseTimeoutError,
 }

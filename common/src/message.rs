@@ -15,7 +15,6 @@ pub trait Message: Serialize + for<'de> Deserialize<'de> {
 pub async fn send_message(stream: &mut TcpStream, msg: &impl Message) -> Result<()> {
     let msg_encoded = msg.ser();
     stream.writable().await?;
-    println!("hola");
     stream.try_write(&msg_encoded)?;
     Ok(())
 }

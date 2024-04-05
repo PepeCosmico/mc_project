@@ -11,6 +11,7 @@ use handle_connection::handle_connection;
 mod error;
 mod handle_connection;
 mod process;
+mod utils;
 
 const ARGS: [&str; 4] = ["-Xmx6G", "-jar", "fabric-server-1.20.4.jar", "nogui"];
 const LISTENER_PORT: &str = "127.0.0.1:25560";

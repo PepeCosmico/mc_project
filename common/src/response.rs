@@ -11,4 +11,7 @@ impl Response {
     pub fn new(status: bool) -> Self {
         Response { status }
     }
+    pub fn is_ok(&self) -> bool {
+        self.status
+    }
 }
