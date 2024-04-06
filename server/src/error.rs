@@ -11,4 +11,6 @@ pub enum Error {
     CommandCreationError,
     #[error("Read message error")]
     ReadMessageError(#[from] common::Error),
+    #[error("Minecraft server not running")]
+    McServerNotRunningError,
 }

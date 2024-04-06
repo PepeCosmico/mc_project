@@ -5,6 +5,7 @@ use crate::{message::Message, Error};
 #[derive(Serialize, Deserialize, Debug, PartialEq, Message)]
 pub enum Instruction {
     Start,
+    Status,
     SaveAll,
     Stop,
     Say(String),
@@ -19,6 +20,7 @@ impl TryFrom<&Vec<&str>> for Instruction {
         }
         match value[0] {
             "start" => Ok(Self::Start),
+            "status" => Ok(Self::Status),
             "save-all" => Ok(Self::SaveAll),
             "stop" => Ok(Self::Stop),
             "say" => Ok(Self::Say("Hello".to_string())), // TODO

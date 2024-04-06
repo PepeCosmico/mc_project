@@ -1,21 +1,19 @@
 use tokio::net::TcpStream;
 
-use std::{
-    process::ChildStdin,
-    sync::{Arc, Mutex},
-};
+use std::sync::{Arc, Mutex};
 
 use common::{instructions::Instruction, message::read_message, response::Response};
 
 use crate::{
     error::{Error, Result},
-    process::process_instructions,
+    mc_server::McServer,
+    process::Command,
     utils::send_response,
 };
 
 pub async fn handle_connection(
     mut stream: TcpStream,
-    child_stdin: Arc<Mutex<Option<ChildStdin>>>,
+    mc_server: Arc<Mutex<McServer>>,
 ) -> Result<()> {
     loop {
         let instruction = match read_message::<Instruction>(&mut stream).await {
@@ -24,8 +22,8 @@ pub async fn handle_connection(
         };
         let res: Result<()>;
         {
-            let mut locked_child_stdin = child_stdin.lock().unwrap();
-            res = process_instructions(&instruction, &mut locked_child_stdin);
+            let mut locked_mc_server = mc_server.lock().unwrap();
+            res = instruction.proccess_command(&mut locked_mc_server);
         }
         let response = match res {
             Ok(_) => Response::new(true),
