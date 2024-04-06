@@ -1,3 +1,7 @@
+use tokio::sync::Mutex;
+
+use std::sync::Arc;
+
 use common::instructions::Instruction;
 
 use crate::{
@@ -7,7 +11,7 @@ use crate::{
 
 pub trait Command {
     fn as_command(&self) -> Result<Vec<u8>>;
-    fn proccess_command(&self, mc_server: &mut McServer) -> Result<()>;
+    async fn proccess_command(&self, mc_server: Arc<Mutex<McServer>>) -> Result<()>;
 }
 
 impl Command for Instruction {
@@ -23,19 +27,21 @@ impl Command for Instruction {
         string.push_str("\n");
         Ok(string.as_bytes().to_vec())
     }
-    fn proccess_command(&self, mc_server: &mut McServer) -> Result<()> {
+    async fn proccess_command(&self, mc_server: Arc<Mutex<McServer>>) -> Result<()> {
+        let mut locked_mc_server = mc_server.lock().await;
         match self {
             Self::Start => {
-                mc_server.start_server()?;
+                locked_mc_server.start_server()?;
             }
             Self::Status => {
-                println!("Server Status: {:?}", mc_server.status());
+                println!("Server Status: {:?}", locked_mc_server.status());
             }
             Self::Stop => {
-                mc_server.send_command(self)?;
-                mc_server.server_closed();
+                locked_mc_server.stop_server().await?;
             }
-            _ => mc_server.send_command(self)?,
+            _ => {
+                locked_mc_server.send_command(self).await?;
+            }
         };
         Ok(())
     }

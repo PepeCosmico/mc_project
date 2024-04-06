@@ -1,11 +1,12 @@
-use tokio::net::TcpListener;
+use tokio::{net::TcpListener, sync::Mutex};
 
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use crate::{error::Result, handle_connection::handle_connection, mc_server::McServer};
 
 mod error;
 mod handle_connection;
+mod log;
 mod mc_server;
 mod process;
 mod utils;
@@ -14,14 +15,6 @@ const LISTENER_PORT: &str = "127.0.0.1:25560";
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // Create server process
-    /*
-    let mut child = Command::new("java")
-        .args(ARGS)
-        .stdin(Stdio::piped())
-        .current_dir("../serverdata/")
-        .spawn()?;
-    */
     let mc_server = Arc::new(Mutex::new(McServer::new()));
 
     let tcp_listener = TcpListener::bind(LISTENER_PORT).await?;

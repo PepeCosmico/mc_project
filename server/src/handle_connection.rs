@@ -1,6 +1,6 @@
-use tokio::net::TcpStream;
+use tokio::{net::TcpStream, sync::Mutex};
 
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use common::{instructions::Instruction, message::read_message, response::Response};
 
@@ -22,8 +22,7 @@ pub async fn handle_connection(
         };
         let res: Result<()>;
         {
-            let mut locked_mc_server = mc_server.lock().unwrap();
-            res = instruction.proccess_command(&mut locked_mc_server);
+            res = instruction.proccess_command(mc_server.clone()).await;
         }
         let response = match res {
             Ok(_) => Response::new(true),
