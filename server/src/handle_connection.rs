@@ -1,41 +1,33 @@
-use tokio::{io::AsyncReadExt, net::TcpStream};
+use tokio::{net::TcpStream, sync::Mutex};
 
-use std::{
-    process::ChildStdin,
-    sync::{Arc, Mutex},
-};
+use std::sync::Arc;
 
-use common::{instructions::Instruction, message::Message};
+use common::{instructions::Instruction, message::read_message, response::Response};
 
 use crate::{
     error::{Error, Result},
-    process::process_instructions,
+    mc_server::McServer,
+    process::Command,
+    utils::send_response,
 };
 
 pub async fn handle_connection(
     mut stream: TcpStream,
-    child_stdin: Arc<Mutex<Option<ChildStdin>>>,
+    mc_server: Arc<Mutex<McServer>>,
 ) -> Result<()> {
-    // Create a buffer to store the incoming data.
-    let mut buffer = vec![0; 1024]; // Adjust the buffer size as needed.
-
     loop {
-        // Read data into the buffer.
-
-        match stream.read(&mut buffer).await {
-            Ok(0) => continue,
-            Ok(_n) => {
-                let received: Instruction = Message::deser(&buffer);
-                let mut locked_child_stdin = child_stdin.lock().unwrap();
-                process_instructions(&received, &mut locked_child_stdin)?;
-                if received == Instruction::Stop {
-                    break;
-                }
-            }
-            Err(e) => return Err(Error::IOError(e)),
+        let instruction = match read_message::<Instruction>(&mut stream).await {
+            Ok(instruc) => instruc,
+            Err(e) => return Err(Error::ReadMessageError(e)),
         };
-        buffer = vec![0; 1024];
+        let res: Result<()>;
+        {
+            res = instruction.proccess_command(mc_server.clone()).await;
+        }
+        let response = match res {
+            Ok(_) => Response::new(true),
+            Err(_) => Response::new(false),
+        };
+        send_response(&mut stream, &response).await?;
     }
-
-    Ok(())
 }
