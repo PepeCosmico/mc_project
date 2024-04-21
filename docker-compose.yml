@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  mc_server:
+    image: pepecosmico/mc_server:peric
+    ports:
+      - "25565:25565" # Minecraft server port
+      - "25560:25560" # Second port, adjust as needed
+    environment:
+      - EULA=TRUE # Example environment variable, accept EULA for Minecraft
+    restart: always
