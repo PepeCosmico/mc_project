@@ -2,7 +2,7 @@ version: '3'
 
 services:
   mc_server:
-    image: pepecosmico/mc_server:peric
+    image: mc_image
     ports:
       - "25565:25565" # Minecraft server port
       - "25560:25560" # Second port, adjust as needed

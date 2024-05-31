@@ -4,7 +4,7 @@ use common::{
     message::{read_message, send_message, Message},
     response::Response,
 };
-use tokio::{io::AsyncReadExt, net::TcpStream, time};
+use tokio::{net::TcpStream, time};
 
 use crate::error::{Error, Result};
 
