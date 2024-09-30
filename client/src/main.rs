@@ -8,13 +8,10 @@ use crate::{
 };
 
 mod error;
-mod tui;
 mod utils;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    //let mut terminal = tui::init();
-
     print_welcome_msg();
 
     let mut stream = connect_to_server().await?;
