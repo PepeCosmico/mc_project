@@ -10,6 +10,9 @@ pub enum Instruction {
     Stop,
     Say(String),
     Seed,
+    Op(String),
+    Deop(String),
+    WhitelistAdd(String),
 }
 
 impl TryFrom<&Vec<&str>> for Instruction {
@@ -23,8 +26,11 @@ impl TryFrom<&Vec<&str>> for Instruction {
             "status" => Ok(Self::Status),
             "save-all" => Ok(Self::SaveAll),
             "stop" => Ok(Self::Stop),
-            "say" => Ok(Self::Say("Hello".to_string())), // TODO
+            "say" => Ok(Self::Say(value[1].to_string())),
             "seed" => Ok(Self::Seed),
+            "op" => Ok(Self::Op(value[1].to_string())),
+            "deop" => Ok(Self::Deop(value[1].to_string())),
+            "whitelist-add" => Ok(Self::WhitelistAdd(value[1].to_string())),
             _command => Err(Error::ParseInstructionError),
         }
     }

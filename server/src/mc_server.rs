@@ -1,13 +1,10 @@
-use std::{process::Stdio, sync::Arc, time::Duration};
+use std::{process::Stdio, time::Duration};
 
 use common::instructions::Instruction;
 use tokio::{
     io::AsyncWriteExt,
     process::{Child, ChildStdin, Command as TokioCommand},
-    sync::{
-        mpsc::{self, Sender},
-        Mutex,
-    },
+    sync::mpsc::{self, Sender},
     task::JoinHandle,
     time::sleep,
 };

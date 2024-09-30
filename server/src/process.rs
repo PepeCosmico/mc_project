@@ -23,6 +23,9 @@ impl Command for Instruction {
             Self::Stop => String::from("/stop"),
             Self::Say(msg) => String::from(format!("/say {}", msg)),
             Self::Seed => String::from("/seed"),
+            Self::Op(player) => String::from(format!("/op {}", player)),
+            Self::Deop(player) => String::from(format!("/deop {}", player)),
+            Self::WhitelistAdd(player) => String::from(format!("/whitelist add {}", player)),
         };
         string.push_str("\n");
         Ok(string.as_bytes().to_vec())

@@ -27,7 +27,7 @@ pub async fn send_msg_wait_response(
 ) -> Result<Response> {
     send_message(stream, msg).await?;
     Ok(
-        match time::timeout(Duration::from_secs(10), read_message::<Response>(stream)).await {
+        match time::timeout(Duration::from_secs(5), read_message::<Response>(stream)).await {
             Ok(Ok(response)) => response,
             Ok(Err(e)) => return Err(Error::CommonError(e)),
             Err(_) => return Err(Error::ReadResponseTimeoutError),

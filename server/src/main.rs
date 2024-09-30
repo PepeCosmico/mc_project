@@ -11,7 +11,7 @@ mod mc_server;
 mod process;
 mod utils;
 
-const LISTENER_PORT: &str = "127.0.0.1:25560";
+const LISTENER_PORT: &str = "0.0.0.0:25560"; // for docker container
 
 #[tokio::main]
 async fn main() -> Result<()> {
