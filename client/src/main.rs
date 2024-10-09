@@ -33,7 +33,7 @@ async fn main() -> Result<()> {
             Ok(instruc) => {
                 let response = send_msg_wait_response(&mut stream, &instruc).await?;
                 if response.is_ok() {
-                    println!("Message send successfully");
+                    println!("{}", response.get_msg().unwrap());
                 }
             }
             Err(e) => {
@@ -49,6 +49,5 @@ async fn main() -> Result<()> {
 fn process_input(input: &String) -> Result<impl Message> {
     let input_vec: Vec<&str> = input.split(" ").collect();
     let instruction = Instruction::try_from(&input_vec)?;
-    println!("{:?}", instruction);
     Ok(instruction)
 }

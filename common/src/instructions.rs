@@ -4,6 +4,7 @@ use crate::{message::Message, Error};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Message)]
 pub enum Instruction {
+    Help,
     Start,
     Status,
     SaveAll,
@@ -22,6 +23,7 @@ impl TryFrom<&Vec<&str>> for Instruction {
             panic!("Trying to convert a empty Vec<&str> to a enum Instruction");
         }
         match value[0] {
+            "help" => Ok(Self::Help),
             "start" => Ok(Self::Start),
             "status" => Ok(Self::Status),
             "save-all" => Ok(Self::SaveAll),
