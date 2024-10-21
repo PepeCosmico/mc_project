@@ -8,7 +8,7 @@ use tokio::{net::TcpStream, time};
 
 use crate::error::{Error, Result};
 
-const HELLO_MSG: &str = "---[ Welcome to the CumServer ]---";
+const HELLO_MSG: &str = "---[ Welcome to the McServer ]---";
 const LISTENER_PORT: &str = "127.0.0.1:25560";
 
 pub fn print_welcome_msg() {
