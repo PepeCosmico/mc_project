@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use common::{
-    message::{read_message, send_message, Message},
+    message::{Message, read_message, send_message},
     response::Response,
 };
 use tokio::{net::TcpStream, time};

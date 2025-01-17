@@ -12,9 +12,9 @@ mod utils;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    print_welcome_msg();
-
     let mut stream = connect_to_server().await?;
+
+    print_welcome_msg();
 
     let mut buffer = String::new();
     loop {
