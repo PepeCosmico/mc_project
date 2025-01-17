@@ -4,3 +4,4 @@
 /serverdata
 /dependencies
 /backups
+**/dprint.json
