@@ -2,7 +2,7 @@ use tokio::{net::TcpStream, sync::Mutex};
 
 use std::sync::Arc;
 
-use common::{instructions::Instruction, message::read_message, response::Response};
+use common::{instructions::Instruction, message::read_message};
 
 use crate::{
     error::{Error, Result},
@@ -20,14 +20,7 @@ pub async fn handle_connection(
             Ok(instruc) => instruc,
             Err(e) => return Err(Error::ReadMessageError(e)),
         };
-        let res: Result<()>;
-        {
-            res = instruction.proccess_command(mc_server.clone()).await;
-        }
-        let response = match res {
-            Ok(_) => Response::new(true),
-            Err(_) => Response::new(false),
-        };
+        let response = instruction.proccess_command(mc_server.clone()).await;
         send_response(&mut stream, &response).await?;
     }
 }

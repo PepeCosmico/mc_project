@@ -4,7 +4,7 @@ use common::instructions::Instruction;
 use tokio::{
     io::AsyncWriteExt,
     process::{Child, ChildStdin, Command as TokioCommand},
-    sync::mpsc::{self, Sender},
+    sync::mpsc::{self, Receiver, Sender},
     task::JoinHandle,
     time::sleep,
 };
@@ -18,6 +18,7 @@ pub struct McServer {
     pub child_stdin: Option<ChildStdin>,
     pub log_tread: Option<JoinHandle<()>>,
     pub log_channel_sender: Option<Sender<String>>,
+    pub log_channel_receiver: Option<Receiver<String>>,
     pub status: ServerStatus,
 }
 
@@ -35,6 +36,7 @@ impl McServer {
             child_stdin: None,
             log_tread: None,
             log_channel_sender: None,
+            log_channel_receiver: None,
             status: ServerStatus::Closed,
         }
     }
@@ -51,10 +53,13 @@ impl McServer {
 
         self.child = Some(child);
         self.child_stdin = child_stdin;
-        let (tx, rx) = mpsc::channel(32);
-        let log_thread = tokio::spawn(async move { logger(child_stdout, rx).await });
+        let (server_tx, logger_rx) = mpsc::channel(32);
+        let (logger_tx, server_rx) = mpsc::channel(32);
+        let log_thread =
+            tokio::spawn(async move { logger(child_stdout, logger_rx, logger_tx).await });
         self.log_tread = Some(log_thread);
-        self.log_channel_sender = Some(tx);
+        self.log_channel_sender = Some(server_tx);
+        self.log_channel_receiver = Some(server_rx);
         self.status = ServerStatus::Running;
         Ok(())
     }
@@ -67,7 +72,7 @@ impl McServer {
                     Ok(Some(status)) => {
                         println!("Exited with status: {}", status);
                         let sender = self.log_channel_sender.clone();
-                        sender.unwrap().try_send(status.to_string()).unwrap();
+                        sender.unwrap().try_send("stop".to_string()).unwrap();
                         break;
                     }
                     Ok(None) => (),
