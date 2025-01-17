@@ -14,4 +14,6 @@ pub enum Error {
     SerializeError(#[from] bincode::Error),
     #[error("Read response timeout ended")]
     ReadResponseTimeoutError,
+    #[error("Color Eyre error")]
+    ColorEyreError(#[from] color_eyre::eyre::Error),
 }

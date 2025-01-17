@@ -47,7 +47,7 @@ impl Command for Instruction {
             _ => locked_mc_server
                 .send_command(self)
                 .await
-                .map(|_| Response::new(true, Some("Help".to_string()))),
+                .map(|_| Response::new(true, Some("Message send succesfully".to_string()))),
         };
         match res {
             Ok(response) => response,
